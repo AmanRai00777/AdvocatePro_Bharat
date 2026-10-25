@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#1e1b4b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AdvocatePro AI">
+    <title>AdvocatePro AI v2.5 - Complete Legal Practice Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1e1b4b; --secondary: #312e81; --accent: #4f46e5; --accent-light: #eef2ff;
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --whatsapp: #25D366;
+            --sms: #0284c7; --call: #0f766e; --light: #f8fafc; --dark: #0f172a; --gray: #64748b;
+            --purple: #7c3aed; --gold: #fbbf24; --card-bg: rgba(255, 255, 255, 0.98);
+            --radius: 14px; --shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            background-attachment: fixed; color: var(--dark); line-height: 1.55;
+            min-height: 100vh; font-size: clamp(0.92rem, 1vw, 1.02rem); overflow-x: hidden;
+        }
+        .container { width: min(96%, 1440px); margin: 0 auto; padding: 0 clamp(10px, 2vw, 24px); }
+
+        /* Toast Notifications */
+        .toast-container { position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 360px; width: calc(100% - 32px); }
+        .toast { background: #fff; color: var(--dark); padding: 14px 18px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 12px; border-left: 5px solid var(--accent); font-weight: 600; animation: slideIn 0.25s ease forwards; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.danger { border-left-color: var(--danger); }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Adaptive Header */
+        header { background: rgba(15, 23, 42, 0.94); color: #fff; padding: 12px 0; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(14px); border-bottom: 1px solid rgba(255,255,255,0.12); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 800; }
+        .logo i { color: var(--gold); }
+        .logo span { background: linear-gradient(45deg, var(--gold), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        nav ul { display: flex; list-style: none; gap: 6px; flex-wrap: wrap; }
+        nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 8px 13px; border-radius: 10px; transition: 0.2s; display: flex; align-items: center; gap: 6px; min-height: 42px; }
+        nav a:hover, nav a.active { background: linear-gradient(135deg, var(--accent), var(--purple)); color: #fff; box-shadow: 0 4px 12px rgba(124,58,237,0.35); }
+        .user-menu { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .lang-btn, .install-btn, .logout-btn { border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; border: none; transition: 0.2s; }
+        .lang-btn { background: var(--gold); color: #1e1b4b; }
+        .install-btn { background: var(--success); color: #fff; }
+        .logout-btn { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+        .logout-btn:hover { background: var(--danger); color: #fff; }
+
+        /* Pages & Layout */
+        .page { display: none; padding: clamp(18px, 2.5vw, 30px) 0 70px; animation: fadeIn 0.25s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header { margin-bottom: 22px; text-align: center; }
+        .page-title { font-size: clamp(1.45rem, 2.8vw, 2.1rem); font-weight: 800; color: #fff; margin-bottom: 6px; }
+        .page-description { color: rgba(255,255,255,0.85); max-width: 740px; margin: 0 auto; }
+
+        .utility-bar { background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.22); border-radius: var(--radius); padding: 12px 18px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; color: #fff; }
+        .utility-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* Fluid Resolution Grids */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card-bg); padding: 18px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); transition: 0.2s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-icon { width: 48px; height: 48px; margin: 0 auto 8px; border-radius: 12px; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; }
+        .stat-number { font-size: clamp(1.5rem, 2.4vw, 2.1rem); font-weight: 800; color: var(--primary); }
+        .stat-label { color: var(--gray); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; }
+
+        .quick-actions, .ai-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 18px; margin-bottom: 24px; }
+        .action-card, .ai-card { background: var(--card-bg); padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .action-card::before, .ai-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--accent), var(--purple)); }
+        .action-card:hover, .ai-card:hover { transform: translateY(-4px); }
+        .action-icon, .ai-icon { font-size: 2.2rem; margin-bottom: 10px; color: var(--accent); }
+
+        .card, .recent-cases, .chart-card, .search-container { background: var(--card-bg); padding: clamp(16px, 2.2vw, 24px); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 22px; }
+        .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; color: var(--primary); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .charts-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 18px; margin-bottom: 24px; }
+        .chart-wrapper { position: relative; height: 240px; width: 100%; }
+
+        /* Forms & Voice Input */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px; font-weight: 600; font-size: 0.88rem; color: var(--dark); }
+        .label-left { display: flex; align-items: center; gap: 6px; }
+        .label-left i { color: var(--accent); }
+        .form-control { width: 100%; padding: 10px 13px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; font-family: inherit; background: #fff; min-height: 44px; transition: 0.2s; }
+        .form-control:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+        .mic-btn { background: #eef2ff; color: var(--accent); border: 1px solid #c7d2fe; padding: 3px 10px; border-radius: 20px; font-size: 0.76rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+        .mic-btn.listening { background: var(--danger); color: #fff; border-color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .court-specific-box { grid-column: 1 / -1; background: #f8fafc; border: 1px dashed #94a3b8; padding: 14px; border-radius: 12px; margin-bottom: 8px; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 18px; min-height: 42px; background: linear-gradient(135deg, var(--accent), var(--purple)); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; font-family: inherit; transition: 0.2s; text-decoration: none; }
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .btn-sm { padding: 7px 12px; min-height: 36px; font-size: 0.82rem; }
+        .btn-success { background: linear-gradient(135deg, var(--success), #059669); }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #d97706); }
+        .btn-purple { background: linear-gradient(135deg, var(--purple), #6d28d9); }
+        .btn-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .btn-sms { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .btn-call { background: linear-gradient(135deg, #0f766e, #115e59); }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #f59e0b); color: #1e1b4b; font-weight: 700; }
+
+        /* Case Cards */
+        .case-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 14px; border: 1px solid #e2e8f0; border-left: 5px solid var(--accent); transition: 0.2s; }
+        .case-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
+        .case-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+        .badge-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .case-status, .court-badge { padding: 4px 11px; border-radius: 50px; font-size: 0.76rem; font-weight: 700; }
+        .court-badge { background: #e0e7ff; color: #3730a3; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .status-progress { background: #dbeafe; color: #1d4ed8; }
+        .status-closed { background: #d1fae5; color: #047857; }
+        .case-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 8px 14px; margin-bottom: 10px; background: #f8fafc; padding: 11px 14px; border-radius: 10px; font-size: 0.88rem; }
+        .fee-strip { display: flex; gap: 14px; flex-wrap: wrap; background: #fffbeb; border: 1px solid #fde68a; padding: 7px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.86rem; font-weight: 600; }
+        .case-actions { display: flex; gap: 7px; margin-top: 12px; flex-wrap: wrap; }
+
+        /* Tabs & Side Panels */
+        .tabs { display: flex; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; gap: 6px; overflow-x: auto; }
+        .tab { padding: 9px 16px; cursor: pointer; font-weight: 700; color: var(--gray); border-bottom: 3px solid transparent; white-space: nowrap; }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .edit-panel, .ai-panel { position: fixed; top: 0; width: min(100%, 540px); height: 100vh; background: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 20px; overflow-y: auto; transition: transform 0.3s ease; z-index: 1000; }
+        .edit-panel { right: 0; transform: translateX(105%); }
+        .edit-panel.open { transform: translateX(0); }
+        .ai-panel { left: 0; transform: translateX(-105%); }
+        .ai-panel.open { transform: translateX(0); }
+        .overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(3px); display: none; z-index: 999; }
+        .overlay.open { display: block; }
+
+        /* Auth & Tables */
+        .auth-container { max-width: 440px; margin: 28px auto; padding: 26px; background: var(--card-bg); border-radius: 18px; box-shadow: var(--shadow); }
+        .auth-tabs { display: flex; margin-bottom: 18px; border-bottom: 2px solid #e2e8f0; }
+        .auth-tab { flex: 1; text-align: center; padding: 11px; cursor: pointer; font-weight: 700; color: var(--gray); border-bottom: 3px solid transparent; }
+        .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+
+        .legal-draft-box { background: #fff; border: 1px solid #cbd5e1; padding: 16px; border-radius: 10px; font-family: 'Noto Sans Devanagari', Georgia, serif; line-height: 1.7; white-space: pre-wrap; margin: 10px 0; max-height: 340px; overflow-y: auto; }
+        .bns-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
+        .bns-table th, .bns-table td { border: 1px solid #e2e8f0; padding: 9px 11px; text-align: left; }
+        .bns-table th { background: var(--accent-light); color: var(--primary); font-weight: 700; }
+        .bns-badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 6px; font-weight: 700; }
+
+        .external-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 10px; margin-top: 12px; }
+        .external-link { display: flex; align-items: center; gap: 9px; padding: 11px 14px; background: #f8fafc; border: 1px solid #e2e8f0; color: var(--primary); font-weight: 600; text-decoration: none; border-radius: 10px; transition: 0.2s; }
+        .external-link:hover { background: var(--accent-light); border-color: var(--accent); }
+
+        .hearing-item { padding: 15px; border-left: 5px solid var(--warning); background: #fffbeb; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .hearing-alert { border-left-color: var(--danger); background: #fef2f2; }
+
+        .session-timeout { position: fixed; bottom: 20px; right: 20px; background: #fff; padding: 18px; border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); display: none; z-index: 2000; max-width: 340px; border-left: 5px solid var(--warning); }
+        .session-timeout.active { display: block; }
+
+        footer { background: rgba(15,23,42,0.95); color: #fff; padding: 30px 0 18px; margin-top: 40px; }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 24px; margin-bottom: 20px; }
+        .footer-column h3 { margin-bottom: 10px; color: var(--gold); font-size: 1.05rem; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 7px; color: #cbd5e1; font-size: 0.88rem; }
+        .copyright { text-align: center; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 0.82rem; }
+
+        @media (max-width: 768px) {
+            .header-content { justify-content: center; }
+            nav ul { justify-content: center; width: 100%; }
+            nav a { padding: 6px 10px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toast-container"></div>
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Session Timeout Modal -->
+    <div class="session-timeout" id="session-timeout">
+        <h4 style="color:var(--warning);margin-bottom:5px;"><i class="fas fa-clock"></i> Session Expiring</h4>
+        <p style="font-size:0.88rem;">Inactive session expires in <strong id="timeout-countdown">2:00</strong>.</p>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn btn-sm" id="extend-session">Continue</button>
+            <button class="btn btn-danger btn-sm" id="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <!-- Edit Case Panel -->
+    <div class="edit-panel" id="edit-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">
+            <h3><i class="fas fa-edit"></i> <span data-i18n="editCase">Edit Case File</span></h3>
+            <button class="btn btn-danger btn-sm" id="close-edit-panel"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="edit-case-form">
+            <div class="form-group">
+                <label>Court Level</label>
+                <select id="edit-court-level" class="form-control">
+                    <option value="District Court">District & Sessions Court</option>
+                    <option value="High Court">High Court</option>
+                    <option value="Supreme Court">Supreme Court of India</option>
+                    <option value="Tribunal">Tribunal / Consumer / Revenue</option>
+                </select>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                    <label>Case / CNR Number *</label>
+                    <input type="text" id="edit-case-number" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Client Name *</label>
+                    <input type="text" id="edit-client-name" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                    <label>Father / Spouse Name</label>
+                    <input type="text" id="edit-father-name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number (10 digits) *</label>
+                    <input type="tel" id="edit-mobile-number" class="form-control" required pattern="[0-9]{10}">
+                </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                    <label>Case Category *</label>
+                    <select id="edit-case-type" class="form-control" required>
+                        <option value="Criminal">Criminal (BNS/IPC)</option>
+                        <option value="Civil">Civil Suit</option>
+                        <option value="Family">Family / Matrimonial</option>
+                        <option value="Property">Property / Revenue</option>
+                        <option value="Corporate">Corporate / NI Act 138</option>
+                        <option value="Labor">Labor / Service</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Court Name / Bench</label>
+                    <input type="text" id="edit-court" class="form-control">
+                </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                    <label>Police Station / Diary No.</label>
+                    <input type="text" id="edit-police-station" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>FIR / Crime / Item No.</label>
+                    <input type="text" id="edit-fir-number" class="form-control">
+                </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                    <label>Total Fee (₹)</label>
+                    <input type="number" id="edit-total-fee" class="form-control" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Received Fee (₹)</label>
+                    <input type="number" id="edit-paid-fee" class="form-control" min="0">
+                </div>
+            </div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                    <label>Next Hearing Date *</label>
+                    <input type="date" id="edit-next-hearing" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select id="edit-status" class="form-control" required>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Stage</label>
+                <select id="edit-case-stage" class="form-control">
+                    <option value="Filing">Filing / Fresh</option>
+                    <option value="Notice">Summons / Notice</option>
+                    <option value="Response">Reply / Bail / W.S.</option>
+                    <option value="Hearing">Evidence / Witness</option>
+                    <option value="Argument">Final Arguments</option>
+                    <option value="Judgment">Judgment</option>
+                    <option value="Appeal">Appeal / Revision</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Client Address</label>
+                <textarea id="edit-client-address" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Last Court Order / Next Purpose</label>
+                <textarea id="edit-court-orders" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Sections (BNS/IPC/CPC) & Facts</label>
+                <textarea id="edit-description" class="form-control" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success" style="width:100%;"><i class="fas fa-save"></i> Update Case</button>
+        </form>
+    </div>
+
+    <!-- AI & Client Helper Panel -->
+    <div class="ai-panel" id="ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">
+            <h3><i class="fas fa-robot"></i> AdvocatePro Smart Assistant</h3>
+            <button class="btn btn-danger btn-sm" id="close-ai-panel"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="ai-analysis-content"></div>
+    </div>
+
+    <!-- Authentication Page -->
+    <div id="auth-page" class="page active">
+        <div class="container">
+            <div class="auth-container">
+                <div style="text-align:center;margin-bottom:16px;">
+                    <i class="fas fa-gavel" style="font-size:2.6rem;color:var(--primary);"></i>
+                    <h2 style="color:var(--primary);margin-top:4px;">AdvocatePro AI</h2>
+                    <p style="color:var(--gray);font-size:0.88rem;">District Court to Supreme Court Practice Suite</p>
+                </div>
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-tab="login">Login</div>
+                    <div class="auth-tab" data-tab="register">Register</div>
+                </div>
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label><span class="label-left"><i class="fas fa-envelope"></i> Email</span></label>
+                        <input type="email" id="login-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="label-left"><i class="fas fa-lock"></i> Password</span></label>
+                        <input type="password" id="login-password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="justify-content:flex-start;cursor:pointer;">
+                            <input type="checkbox" id="remember-me" checked style="width:17px;height:17px;"> Keep me logged in on this device
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width:100%;"><i class="fas fa-sign-in-alt"></i> Login to Chamber</button>
+                    <div style="margin-top:16px;padding:12px;background:#eef2ff;border:1px dashed var(--accent);border-radius:12px;text-align:center;">
+                        <p style="font-size:0.84rem;margin-bottom:8px;"><strong><i class="fas fa-tablet-alt"></i> Instant Tablet Testing:</strong></p>
+                        <button type="button" class="btn btn-gold btn-sm" style="width:100%;" onclick="quickDemoLogin()">
+                            <i class="fas fa-bolt"></i> 1-Click Demo Login (Adv. Aman Rai)
+                        </button>
+                    </div>
+                </form>
+                <form id="register-form" class="auth-form">
+                    <div class="form-group">
+                        <label>Advocate Full Name</label>
+                        <input type="text" id="register-name" class="form-control" placeholder="Adv. Aman Rai" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="register-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password (8+ chars)</label>
+                        <input type="password" id="register-password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="register-confirm" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width:100%;">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app-container" style="display:none;">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-gavel"></i>
+                        <span>AdvocatePro AI</span>
+                    </div>
+                    <nav>
+                        <ul>
+                            <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-chart-pie"></i> <span data-i18n="navDash">Dashboard</span></a></li>
+                            <li><a href="#" class="nav-link" data-page="cases"><i class="fas fa-folder-open"></i> <span data-i18n="navCases">Case Diary</span></a></li>
+                            <li><a href="#" class="nav-link" data-page="hearings"><i class="fas fa-calendar-day"></i> <span data-i18n="navHearings">Cause List</span></a></li>
+                            <li><a href="#" class="nav-link" data-page="search"><i class="fas fa-search"></i> <span data-i18n="navSearch">Search</span></a></li>
+                            <li><a href="#" class="nav-link" data-page="ai-tools"><i class="fas fa-robot"></i> <span data-i18n="navAI">AI & BNS</span></a></li>
+                            <li><a href="#" class="nav-link" data-page="resources"><i class="fas fa-book"></i> <span data-i18n="navRes">Resources</span></a></li>
+                        </ul>
+                    </nav>
+                    <div class="user-menu">
+                        <button class="lang-btn" onclick="toggleLanguage()" title="Switch Hindi / English">
+                            <i class="fas fa-language"></i> <span id="lang-label">हिंदी / EN</span>
+                        </button>
+                        <button class="install-btn" id="pwa-install-btn" onclick="installAppOnHomeScreen()">
+                            <i class="fas fa-mobile-alt"></i> <span data-i18n="installApp">Install App</span>
+                        </button>
+                        <span id="user-welcome" style="font-size:0.86rem;color:var(--gold);font-weight:700;"></span>
+                        <button class="logout-btn" id="logout-button"><i class="fas fa-power-off"></i></button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="page active">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" data-i18n="dashTitle">Advocate Digital Diary & AI Chamber</h1>
+                    <p class="page-description" data-i18n="dashSub">District Court, High Court & Supreme Court Integrated Practice Management</p>
+                </div>
+
+                <div class="utility-bar">
+                    <div>
+                        <strong><i class="fas fa-magic" style="color:var(--gold);"></i> <span data-i18n="testModeTitle">Quick Tablet Test & Backup:</span></strong>
+                        <span style="font-size:0.86rem;opacity:0.9;" data-i18n="testModeDesc">Load sample District/HC/SC cases or backup your chamber data.</span>
+                    </div>
+                    <div class="utility-actions">
+                        <button class="btn btn-gold btn-sm" onclick="loadSampleCases()"><i class="fas fa-bolt"></i> <span data-i18n="btnLoadDemo">Load Demo Cases</span></button>
+                        <button class="btn btn-sm" onclick="exportBackupData()"><i class="fas fa-download"></i> <span data-i18n="btnBackup">Export Backup</span></button>
+                        <label class="btn btn-purple btn-sm" style="cursor:pointer;margin:0;">
+                            <i class="fas fa-upload"></i> <span data-i18n="btnRestore">Restore</span>
+                            <input type="file" accept=".json" style="display:none;" onchange="importBackupData(event)">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card" onclick="navigateToPage('cases')">
+                        <div class="stat-icon"><i class="fas fa-folder"></i></div>
+                        <div class="stat-number" id="total-cases">0</div>
+                        <div class="stat-label" data-i18n="statTotal">Total Cases</div>
+                    </div>
+                    <div class="stat-card" onclick="navigateToPage('hearings')">
+                        <div class="stat-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-gavel"></i></div>
+                        <div class="stat-number" id="upcoming-hearings">0</div>
+                        <div class="stat-label" data-i18n="statHearings">Hearings (7 Days)</div>
+                    </div>
+                    <div class="stat-card" onclick="navigateToPage('cases')">
+                        <div class="stat-icon" style="background:#fee2e2;color:var(--danger);"><i class="fas fa-clock"></i></div>
+                        <div class="stat-number" id="pending-cases">0</div>
+                        <div class="stat-label" data-i18n="statPending">Pending Matters</div>
+                    </div>
+                    <div class="stat-card" onclick="navigateToPage('cases')">
+                        <div class="stat-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-rupee-sign"></i></div>
+                        <div class="stat-number" id="pending-fees-stat">₹0</div>
+                        <div class="stat-label" data-i18n="statBalanceFee">Balance Fee Due</div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h2 class="card-title"><span><i class="fas fa-chart-pie"></i> <span data-i18n="chartCategory">Case Category Split</span></span></h2>
+                        <div class="chart-wrapper"><canvas id="case-distribution-chart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <h2 class="card-title"><span><i class="fas fa-university"></i> <span data-i18n="chartCourt">Court Level Distribution</span></span></h2>
+                        <div class="chart-wrapper"><canvas id="monthly-activity-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="recent-cases">
+                    <h2 class="card-title">
+                        <span><i class="fas fa-history"></i> <span data-i18n="recentCasesTitle">Recent Case Files</span></span>
+                        <button class="btn btn-sm" onclick="navigateToPage('cases')" data-i18n="btnAddCase">+ Add New Case</button>
+                    </h2>
+                    <div id="recent-cases-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASES PAGE -->
+        <div id="cases-page" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" data-i18n="casesPageTitle">Universal Case & Fee Diary</h1>
+                    <p class="page-description">Supports District Court (FIR/Thana), High Court (Writ/Bench) & Supreme Court (SLP/Diary No.)</p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <span><i class="fas fa-plus-circle"></i> <span data-i18n="formAddTitle">Register New Case File</span></span>
+                        <span style="font-size:0.8rem;color:var(--gray);">🎤 Tap Mic on description fields for Voice Typing</span>
+                    </h2>
+                    <form id="case-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-landmark"></i> <span data-i18n="lblCourtLevel">Court Level *</span></span></label>
+                                <select id="court-level" class="form-control" onchange="toggleCourtLevelFields()" required>
+                                    <option value="District Court">District & Sessions Court (जिला न्यायालय)</option>
+                                    <option value="High Court">High Court (उच्च न्यायालय)</option>
+                                    <option value="Supreme Court">Supreme Court of India (सर्वोच्च न्यायालय)</option>
+                                    <option value="Tribunal">Tribunal / Consumer / Revenue Board</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-hashtag"></i> <span data-i18n="lblCaseNo">Case / Bail / Writ No. *</span></span></label>
+                                <input type="text" id="case-number" class="form-control" placeholder="e.g. BA/402/2026 or WP/1120/2026" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-user"></i> <span data-i18n="lblClientName">Client Name *</span></span></label>
+                                <input type="text" id="client-name" class="form-control" placeholder="Full Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-user-friends"></i> <span data-i18n="lblFatherName">Father's / Spouse Name</span></span></label>
+                                <input type="text" id="father-name" class="form-control" placeholder="S/o, W/o, D/o">
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-phone"></i> <span data-i18n="lblMobile">Client Mobile (10 Digits) *</span></span></label>
+                                <input type="tel" id="mobile-number" class="form-control" placeholder="9876543210" required pattern="[0-9]{10}">
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-gavel"></i> <span data-i18n="lblCaseType">Case Category *</span></span></label>
+                                <select id="case-type" class="form-control" required>
+                                    <option value="Criminal">Criminal (BNS / IPC / BNSS)</option>
+                                    <option value="Civil">Civil Suit / Injunction</option>
+                                    <option value="Family">Family / Matrimonial / 144 BNSS</option>
+                                    <option value="Property">Property / Mutation / Revenue</option>
+                                    <option value="Corporate">NI Act 138 (Cheque Bounce) / Commercial</option>
+                                    <option value="Labor">Service / Writ / Labor</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Dynamic Court Level Sub-Box -->
+                            <div class="court-specific-box">
+                                <div class="form-grid">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label><span class="label-left"><i class="fas fa-shield-alt"></i> <span id="lbl-dynamic-1">Police Station (थाना)</span></span></label>
+                                        <input type="text" id="police-station" class="form-control" placeholder="e.g. PS Naugarh / Kotwali">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label><span class="label-left"><i class="fas fa-file-alt"></i> <span id="lbl-dynamic-2">FIR / Crime No. & Year</span></span></label>
+                                        <input type="text" id="fir-number" class="form-control" placeholder="e.g. Crime No. 118/2026">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label><span class="label-left"><i class="fas fa-user-tie"></i> <span id="lbl-dynamic-3">Opposite Party / Counsel</span></span></label>
+                                        <input type="text" id="opposite-counsel" class="form-control" placeholder="State of UP / Opp. Advocate">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-balance-scale"></i> <span data-i18n="lblCourtName">Court Room / Judge / Bench</span></span></label>
+                                <input type="text" id="court" class="form-control" placeholder="e.g. CJM Court / Court No. 4">
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-calendar-check"></i> <span data-i18n="lblNextHearing">Next Hearing Date *</span></span></label>
+                                <input type="date" id="next-hearing" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-step-forward"></i> <span data-i18n="lblStage">Case Stage</span></span></label>
+                                <select id="case-stage" class="form-control">
+                                    <option value="Filing">Fresh Filing / Admission</option>
+                                    <option value="Notice">Summons / Notice Issued</option>
+                                    <option value="Response">W.S. / Counter Affidavit / Bail</option>
+                                    <option value="Hearing">Charge / Evidence (गवाही)</option>
+                                    <option value="Argument">Final Arguments (बहस)</option>
+                                    <option value="Judgment">Reserved for Judgment (आदेश)</option>
+                                    <option value="Appeal">Appeal / Revision</option>
+                                    <option value="Execution">Execution (इजरा)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-tasks"></i> <span data-i18n="lblStatus">Status *</span></span></label>
+                                <select id="status" class="form-control" required>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Closed">Closed / Disposed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-rupee-sign"></i> <span data-i18n="lblTotalFee">Total Agreed Fee (₹)</span></span></label>
+                                <input type="number" id="total-fee" class="form-control" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-hand-holding-usd"></i> <span data-i18n="lblPaidFee">Fee Received (₹)</span></span></label>
+                                <input type="number" id="paid-fee" class="form-control" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label><span class="label-left"><i class="fas fa-home"></i> <span data-i18n="lblAddress">Client Address</span></span></label>
+                                <textarea id="client-address" class="form-control" rows="2" placeholder="Village/Ward, Tehsil, District"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <span class="label-left"><i class="fas fa-file-contract"></i> <span data-i18n="lblOrder">Last Order / Next Purpose</span></span>
+                                    <button type="button" class="mic-btn" onclick="startVoiceDictation('court-orders', this)"><i class="fas fa-microphone"></i> Speak</button>
+                                </label>
+                                <textarea id="court-orders" class="form-control" rows="2" placeholder="Speak or type court order..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <span class="label-left"><i class="fas fa-align-left"></i> <span data-i18n="lblDesc">Sections (BNS/IPC) & Case Facts</span></span>
+                                    <button type="button" class="mic-btn" onclick="startVoiceDictation('description', this)"><i class="fas fa-microphone"></i> Speak</button>
+                                </label>
+                                <textarea id="description" class="form-control" rows="2" placeholder="e.g. U/s 103 BNS (302 IPC) or 138 NI Act..."></textarea>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> <span data-i18n="btnSaveCase">Save Case File</span></button>
+                            <button type="button" class="btn btn-purple" id="reset-form-btn"><i class="fas fa-redo"></i> Reset</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="tab-all-cases">All Cases</div>
+                        <div class="tab" data-tab="tab-pending-cases">Pending</div>
+                        <div class="tab" data-tab="tab-progress-cases">In Progress</div>
+                        <div class="tab" data-tab="tab-closed-cases">Closed</div>
+                    </div>
+                    <div class="tab-content active" id="tab-all-cases"><div id="all-cases-list"></div></div>
+                    <div class="tab-content" id="tab-pending-cases"><div id="pending-cases-list"></div></div>
+                    <div class="tab-content" id="tab-progress-cases"><div id="progress-cases-list"></div></div>
+                    <div class="tab-content" id="tab-closed-cases"><div id="closed-cases-list"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEARINGS / CAUSE LIST PAGE -->
+        <div id="hearings-page" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title" data-i18n="hearingsTitle">Upcoming Cause List & All-Client Reminders</h1>
+                    <p class="page-description">Supports WhatsApp, Keypad Phone SIM SMS, Direct Voice Call Script & Printable Peshi Parcha</p>
+                </div>
+                <div class="card">
+                    <h2 class="card-title"><span><i class="fas fa-calendar-day"></i> Hearings in Next 7 Days</span></h2>
+                    <div id="hearing-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH PAGE -->
+        <div id="search-page" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Smart Chamber Search</h1>
+                    <p class="page-description">Search by Case No, Client, Police Station, FIR No, Court, or Section</p>
+                </div>
+                <div class="search-container">
+                    <div class="form-grid">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label><span class="label-left"><i class="fas fa-search"></i> Keyword</span></label>
+                            <input type="text" id="search-input" class="form-control" placeholder="Type Client name, Case No, Thana, FIR or Mobile..." oninput="searchCases()">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label><span class="label-left"><i class="fas fa-filter"></i> Court Filter</span></label>
+                            <select id="search-field" class="form-control" onchange="searchCases()">
+                                <option value="all">All Courts & Fields</option>
+                                <option value="District Court">District Court Only</option>
+                                <option value="High Court">High Court Only</option>
+                                <option value="Supreme Court">Supreme Court Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="search-results" style="margin-top:18px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI TOOLS & IPC-BNS CONVERTER PAGE -->
+        <div id="ai-tools-page" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">AdvocatePro AI & BNS-IPC Suite</h1>
+                    <p class="page-description">Bilingual Legal Drafting (Hindi/English), Procedural Strategy & Criminal Law Converter</p>
+                </div>
+
+                <div class="ai-features">
+                    <div class="ai-card" onclick="openAIAnalysis('document-generation')">
+                        <div class="ai-icon"><i class="fas fa-file-signature"></i></div>
+                        <h3>Hindi / English AI Drafting</h3>
+                        <p>Draft Legal Notice, Bail Application, Affidavit & Exemption in Hindi or English</p>
+                        <div class="btn btn-gold btn-sm" style="margin-top:10px;">Open Drafter</div>
+                    </div>
+                    <div class="ai-card" onclick="openAIAnalysis('case-analysis')">
+                        <div class="ai-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <h3>Procedural Checklist & Audit</h3>
+                        <p>Stage-wise statutory checklist, limitation check & evidence guide</p>
+                        <div class="btn btn-gold btn-sm" style="margin-top:10px;">Analyze Case</div>
+                    </div>
+                    <div class="ai-card" onclick="openAIAnalysis('legal-research')">
+                        <div class="ai-icon"><i class="fas fa-search-plus"></i></div>
+                        <h3>SC / HC Precedent Finder</h3>
+                        <p>Instant landmark principles & direct Indian Kanoon judgment search</p>
+                        <div class="btn btn-gold btn-sm" style="margin-top:10px;">Search Law</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title"><span><i class="fas fa-exchange-alt"></i> Instant IPC ↔ BNS & CrPC ↔ BNSS Section Converter (Offline Ready)</span></h2>
+                    <input type="text" id="bns-search-input" class="form-control" placeholder="Search old section (e.g. 302, 420, 438, 156(3), 125, 65B) or offence name..." oninput="filterBNSConverter()">
+                    <div style="overflow-x:auto;">
+                        <table class="bns-table">
+                            <thead>
+                                <tr>
+                                    <th>Old Law (IPC / CrPC / IEA)</th>
+                                    <th>New Law (BNS / BNSS / BSA)</th>
+                                    <th>Offence / Provision (अपराध / प्रावधान)</th>
+                                    <th>Key Change / Punishment Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bns-converter-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESOURCES PAGE -->
+        <div id="resources-page" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Indian Court Portals & Recovery Calculator</h1>
+                    <p class="page-description">Direct links to eCourts, Supreme Court, High Courts & Suit Valuation Calculator</p>
+                </div>
+                <div class="card">
+                    <h2 class="card-title"><span><i class="fas fa-globe"></i> Official Portals</span></h2>
+                    <div class="external-links">
+                        <a href="https://ecourts.gov.in" target="_blank" class="external-link"><i class="fas fa-balance-scale"></i> eCourts Services</a>
+                        <a href="https://efiling.ecourts.gov.in/" target="_blank" class="external-link"><i class="fas fa-upload"></i> eFiling 3.0</a>
+                        <a href="https://www.sci.gov.in" target="_blank" class="external-link"><i class="fas fa-gavel"></i> Supreme Court of India</a>
+                        <a href="https://allahabadhighcourt.in" target="_blank" class="external-link"><i class="fas fa-landmark"></i> Allahabad High Court</a>
+                        <a href="https://www.indiacode.nic.in" target="_blank" class="external-link"><i class="fas fa-book"></i> India Code (Bare Acts)</a>
+                        <a href="https://indiankanoon.org" target="_blank" class="external-link"><i class="fas fa-search"></i> Indian Kanoon</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2 class="card-title"><span><i class="fas fa-calculator"></i> Suit Valuation & Legal Interest Calculator</span></h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Principal Amount (₹)</label>
+                            <input type="number" id="calc-principal" class="form-control" value="100000">
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Rate (% p.a.)</label>
+                            <input type="number" id="calc-rate" class="form-control" value="9">
+                        </div>
+                        <div class="form-group">
+                            <label>Duration (Months)</label>
+                            <input type="number" id="calc-months" class="form-control" value="18">
+                        </div>
+                    </div>
+                    <button class="btn btn-gold" onclick="calculateLegalInterest()"><i class="fas fa-calculator"></i> Calculate Total Claim</button>
+                    <div id="interest-calc-result" style="margin-top:12px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>AdvocatePro AI v2.5</h3>
+                        <p style="color:#cbd5e1;font-size:0.88rem;">Built for Advocates across District Courts, High Courts, and the Supreme Court of India.</p>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Contact & Chamber</h3>
+                        <ul class="footer-links">
+                            <li><i class="fas fa-map-marker-alt" style="color:var(--gold)"></i> Shri Ram Nagar, Pakari, Siddharthnagar, UP</li>
+                            <li><i class="fas fa-phone" style="color:var(--gold)"></i> +91 7897518799</li>
+                            <li><i class="fas fa-envelope" style="color:var(--gold)"></i> info@advocateprobharat.com</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="copyright">
+                    <p>&copy; 2026 <strong>AdvocatePro Bharat</strong> | Developed by <strong>Rai !nformatics</strong> | Founder: <strong style="color:var(--gold);">Aman Rai</strong></p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ================= MODULE 1: STATE & BILINGUAL DICTIONARY =================
+        let cases = [];
+        let users = JSON.parse(localStorage.getItem('secure_users')) || [];
+        let currentUser = null;
+        let editingCaseNumber = null;
+        let currentLang = localStorage.getItem('app_lang') || 'en';
+        let sessionTimeout, inactivityTimer, countdownInterval;
+        let distChart = null, courtChart = null;
+        let deferredInstallPrompt = null;
+
+        const i18n = {
+            en: {
+                navDash: "Dashboard", navCases: "Case Diary", navHearings: "Cause List",
+                navSearch: "Search", navAI: "AI & BNS", navRes: "Resources", installApp: "Install App",
+                dashTitle: "Advocate Digital Diary & AI Chamber",
+                dashSub: "District Court, High Court & Supreme Court Integrated Practice Management",
+                testModeTitle: "Quick Tablet Test & Backup:",
+                testModeDesc: "Load sample District/HC/SC cases or backup your chamber data.",
+                btnLoadDemo: "Load Demo Cases", btnBackup: "Export Backup", btnRestore: "Restore",
+                statTotal: "Total Cases", statHearings: "Hearings (7 Days)",
+                statPending: "Pending Matters", statBalanceFee: "Balance Fee Due",
+                chartCategory: "Case Category Split", chartCourt: "Court Level Distribution",
+                recentCasesTitle: "Recent Case Files", btnAddCase: "+ Add New Case",
+                casesPageTitle: "Universal Case & Fee Diary",
+                formAddTitle: "Register New Case File", lblCourtLevel: "Court Level *",
+                lblCaseNo: "Case / Bail / Writ No. *", lblClientName: "Client Name *",
+                lblFatherName: "Father's / Spouse Name", lblMobile: "Client Mobile (10 Digits) *",
+                lblCaseType: "Case Category *", lblCourtName: "Court Room / Judge / Bench",
+                lblNextHearing: "Next Hearing Date *", lblStage: "Case Stage", lblStatus: "Status *",
+                lblTotalFee: "Total Agreed Fee (₹)", lblPaidFee: "Fee Received (₹)",
+                lblAddress: "Client Address", lblOrder: "Last Order / Next Purpose",
+                lblDesc: "Sections (BNS/IPC) & Case Facts", btnSaveCase: "Save Case File",
+                hearingsTitle: "Upcoming Cause List & All-Client Reminders", editCase: "Edit Case File"
+            },
+            hi: {
+                navDash: "डैशबोर्ड", navCases: "केस डायरी", navHearings: "तारीख / कॉज लिस्ट",
+                navSearch: "खोजें", navAI: "AI व BNS धाराएं", navRes: "पोर्टल व गणना", installApp: "ऐप इंस्टॉल करें",
+                dashTitle: "एडवोकेट डिजिटल डायरी एवं AI चैम्बर",
+                dashSub: "जिला न्यायालय, हाई कोर्ट एवं सुप्रीम कोर्ट के अधिवक्ताओं के लिए आधुनिक सिस्टम",
+                testModeTitle: "टैबलेट टेस्टिंग और बैकअप:",
+                testModeDesc: "टेस्टिंग के लिए डेमो केस लोड करें या अपनी डायरी का बैकअप डाउनलोड करें।",
+                btnLoadDemo: "डेमो केस लोड करें", btnBackup: "बैकअप डाउनलोड", btnRestore: "बैकअप रिस्टोर",
+                statTotal: "कुल मुकदमे", statHearings: "आगामी सुनवाई (7 दिन)",
+                statPending: "लंबित मुकदमे", statBalanceFee: "कुल बकाया फीस",
+                chartCategory: "मुकदमों का वर्गीकरण", chartCourt: "न्यायालय स्तर के अनुसार केस",
+                recentCasesTitle: "हाल ही में जोड़े गए मुकदमे", btnAddCase: "+ नया केस जोड़ें",
+                casesPageTitle: "मुकदमा एवं फीस डायरी",
+                formAddTitle: "नया मुकदमा दर्ज करें", lblCourtLevel: "न्यायालय का स्तर *",
+                lblCaseNo: "वाद / जमानत / रिट संख्या *", lblClientName: "मुवक्किल (Client) का नाम *",
+                lblFatherName: "पिता / पति का नाम", lblMobile: "मोबाइल नंबर (10 अंक) *",
+                lblCaseType: "मुकदमे का प्रकार *", lblCourtName: "न्यायालय / जज / बेंच का नाम",
+                lblNextHearing: "अगली सुनवाई की तारीख *", lblStage: "मुकदमे की स्थिति (Stage)", lblStatus: "स्टेटस *",
+                lblTotalFee: "कुल तय फीस (₹)", lblPaidFee: "प्राप्त फीस (₹)",
+                lblAddress: "मुवक्किल का पता", lblOrder: "पिछला आदेश / अगली कार्यवाही",
+                lblDesc: "धाराएं (BNS/IPC/CPC) व संक्षिप्त विवरण", btnSaveCase: "डायरी में सुरक्षित करें",
+                hearingsTitle: "आगामी सुनवाई एवं मुवक्किल सूचना (WhatsApp / SMS / पर्ची)", editCase: "केस विवरण संशोधित करें"
+            }
+        };
+
+        // ================= MODULE 2: OFFLINE IPC <-> BNS & CrPC <-> BNSS DATABASE =================
+        const bnsDatabase = [
+            { old: "IPC 302", newSec: "BNS 103(1)", title: "Murder (हत्या के लिए दंड)", note: "Death or life imprisonment & fine; mob lynching under 103(2)." },
+            { old: "IPC 307", newSec: "BNS 109", title: "Attempt to Murder (हत्या का प्रयास)", note: "Up to 10 years or life imprisonment if hurt caused." },
+            { old: "IPC 304B", newSec: "BNS 80", title: "Dowry Death (दहेज मृत्यु)", note: "Minimum 7 years up to life imprisonment." },
+            { old: "IPC 376", newSec: "BNS 64", title: "Punishment for Rape (बलात्कार)", note: "Rigorous imprisonment min 10 years to life." },
+            { old: "IPC 420", newSec: "BNS 318(4)", title: "Cheating & dishonestly inducing delivery of property (धोखाधड़ी)", note: "Imprisonment up to 7 years and fine." },
+            { old: "IPC 406", newSec: "BNS 316(2)", title: "Criminal Breach of Trust (अमानत में खयानत)", note: "Up to 5 years imprisonment (increased from 3 yrs)." },
+            { old: "IPC 498A", newSec: "BNS 85", title: "Cruelty by Husband or Relatives (दहेज प्रताड़ना)", note: "Up to 3 years imprisonment and fine." },
+            { old: "IPC 323", newSec: "BNS 115(2)", title: "Voluntarily causing hurt (मारपीट / साधारण चोट)", note: "Up to 1 year or fine up to ₹10,000." },
+            { old: "IPC 504 / 506", newSec: "BNS 352 / 351", title: "Intentional Insult & Criminal Intimidation (गाली-गलौज व जान से मारने की धमकी)", note: "Up to 2 years (up to 7 years if threat to cause death)." },
+            { old: "IPC 34", newSec: "BNS 3(5)", title: "Common Intention (सामान्य आशय)", note: "Joint liability for acts done in furtherance of common intention." },
+            { old: "IPC 120B", newSec: "BNS 61(2)", title: "Criminal Conspiracy (आपराधिक षड्यंत्र)", note: "Same punishment as abetment of offence." },
+            { old: "CrPC 41A", newSec: "BNSS 35(3)", title: "Notice of appearance before Police Officer", note: "Mandatory prior notice where arrest is not immediately required." },
+            { old: "CrPC 125", newSec: "BNSS 144", title: "Maintenance of Wife, Children & Parents (भरण-पोषण)", note: "Summary procedure for monthly maintenance allowance." },
+            { old: "CrPC 154", newSec: "BNSS 173", title: "FIR, Zero FIR & e-FIR Registration", note: "Introduces e-FIR (sign within 3 days) and mandatory Zero FIR." },
+            { old: "CrPC 156(3)", newSec: "BNSS 175(3)", title: "Magistrate order for Police Investigation", note: "Magistrate may consider police officer submission before ordering FIR." },
+            { old: "CrPC 437 / 439", newSec: "BNSS 480 / 483", title: "Regular Bail (जमानत - मजिस्ट्रेट / सेशन व हाई कोर्ट)", note: "Streamlined bail provisions for undertrials." },
+            { old: "CrPC 438", newSec: "BNSS 482", title: "Anticipatory Bail (अग्रिम जमानत)", note: "Direction for grant of bail to person apprehending arrest." },
+            { old: "CrPC 482", newSec: "BNSS 528", title: "Inherent Powers of High Court (FIR Quashing)", note: "Saving of inherent powers of High Court." },
+            { old: "Evidence 65B", newSec: "BSA 63", title: "Admissibility of Electronic Records (इलेक्ट्रॉनिक साक्ष्य प्रमाणपत्र)", note: "Standardized certificate format for digital/mobile evidence." }
+        ];
+
+        if (users.length === 0) {
+            users.push({ id: 'demo_user', name: 'Adv. Aman Rai', email: 'demo@example.com', password: hashPassword('Password123!'), createdAt: new Date().toISOString() });
+            localStorage.setItem('secure_users', JSON.stringify(users));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPWA();
+            setupEventListeners();
+            applyLanguage();
+            toggleCourtLevelFields();
+            filterBNSConverter();
+            checkAuthentication();
+        });
+
+        // ================= MODULE 3: FIXED PWA & HOME SCREEN INSTALLER =================
+        function setupPWA() {
+            if (window.location.protocol.startsWith('http')) {
+                const manifest = {
+                    name: "AdvocatePro AI - Legal Practice System",
+                    short_name: "AdvocatePro",
+                    start_url: window.location.href.split('#')[0],
+                    display: "standalone",
+                    background_color: "#1e1b4b",
+                    theme_color: "#1e1b4b",
+                    icons: [{
+                        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231e1b4b'/><text x='50' y='68' font-size='55' text-anchor='middle' fill='%23fbbf24'>⚖️</text></svg>",
+                        sizes: "192x192",
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    }]
+                };
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = `data:application/manifest+json;charset=utf-8,${encodeURIComponent(JSON.stringify(manifest))}`;
+                document.head.appendChild(link);
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredInstallPrompt = e;
+                });
+            }
+        }
+
+        function installAppOnHomeScreen() {
+            if (!window.location.protocol.startsWith('http')) {
+                const content = document.getElementById('ai-analysis-content');
+                content.innerHTML = `
+                    <div style="background:#fef3c7;border-left:5px solid #f59e0b;padding:15px;border-radius:10px;margin-bottom:14px;">
+                        <h4 style="color:#b45309;margin-bottom:6px;"><i class="fas fa-exclamation-triangle"></i> Local File Mode (${window.location.protocol})</h4>
+                        <p style="font-size:0.88rem;color:#1e293b;">Android सुरक्षा नियम के कारण सीधे फाइल मैनेजर से खोली गई लोकल फाइल का Chrome शॉर्टकट काम नहीं करता।</p>
+                    </div>
+                    <div style="background:#f8fafc;padding:15px;border-radius:10px;border:1px solid #cbd5e1;font-size:0.9rem;">
+                        <h4 style="color:var(--primary);margin-bottom:8px;">✅ होम स्क्रीन पर लगाने के 2 पक्के तरीके:</h4>
+                        <p style="margin-bottom:8px;"><strong>1. ऑफलाइन टैबलेट शॉर्टकट (10 सेकंड):</strong><br>अपने टैबलेट के <b>Files by Google / File Manager</b> ऐप में जाएं ➔ इस HTML फाइल के सामने <b>3 dots (⋮)</b> दबाएं ➔ <b>"Add to home screen"</b> चुनें।</p>
+                        <p><strong>2. फुल-स्क्रीन ऐप (साथी वकीलों के साथ टेस्टिंग हेतु):</strong><br>इस फाइल को मुफ्त में <b>app.netlify.com/drop</b> पर ड्रॉप करें और वहां से मिले <code>https://</code> लिंक को Chrome में खोलकर Install करें।</p>
+                    </div>
+                `;
+                document.getElementById('ai-panel').classList.add('open');
+                document.getElementById('overlay').classList.add('open');
+                return;
+            }
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                deferredInstallPrompt.userChoice.then(() => { deferredInstallPrompt = null; });
+            } else {
+                showToast(currentLang === 'hi' ? 'ब्राउज़र के (⋮) मेनू में जाकर "Add to Home screen" चुनें।' : 'Tap browser menu (⋮) and select "Install App" or "Add to Home screen".', 'success');
+            }
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            localStorage.setItem('app_lang', currentLang);
+            applyLanguage();
+            toggleCourtLevelFields();
+            showToast(currentLang === 'hi' ? 'भाषा हिंदी में बदल दी गई है' : 'Language switched to English', 'success');
+        }
+
+        function applyLanguage() {
+            const dict = i18n[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.textContent = dict[key];
+            });
+            document.getElementById('lang-label').textContent = currentLang === 'en' ? 'हिंदी / EN' : 'EN / हिंदी';
+        }
+
+        // ================= MODULE 4: DYNAMIC COURT LEVEL FIELDS & VOICE TYPING =================
+        function toggleCourtLevelFields() {
+            const level = document.getElementById('court-level').value;
+            const l1 = document.getElementById('lbl-dynamic-1');
+            const l2 = document.getElementById('lbl-dynamic-2');
+            const l3 = document.getElementById('lbl-dynamic-3');
+            const p1 = document.getElementById('police-station');
+            const p2 = document.getElementById('fir-number');
+
+            if (level === 'District Court') {
+                l1.textContent = currentLang === 'hi' ? 'थाना (Police Station)' : 'Police Station (थाना)';
+                l2.textContent = currentLang === 'hi' ? 'FIR / अपराध संख्या व वर्ष' : 'FIR / Crime No. & Year';
+                l3.textContent = currentLang === 'hi' ? 'विपक्षी अधिवक्ता / पक्षकार' : 'Opposite Party / Counsel';
+                p1.placeholder = 'e.g. PS Naugarh / Kotwali';
+                p2.placeholder = 'e.g. Crime No. 118/2026';
+            } else if (level === 'High Court' || level === 'Supreme Court') {
+                l1.textContent = currentLang === 'hi' ? 'डायरी / फाइलिंग नंबर व जिला' : 'Diary No. / Originating District';
+                l2.textContent = currentLang === 'hi' ? 'बेंच (Single/Division) व आइटम नं.' : 'Bench Type & Court/Item No.';
+                l3.textContent = currentLang === 'hi' ? 'रेस्पोंडेंट अधिवक्ता (AAG/GA)' : 'Respondent / State Counsel';
+                p1.placeholder = 'e.g. Diary No. 4412/2026 (Siddharthnagar)';
+                p2.placeholder = 'e.g. Division Bench - Court 2, Item 14';
+            } else {
+                l1.textContent = 'Department / Authority';
+                l2.textContent = 'Reference / Claim No.';
+                l3.textContent = 'Opposite Counsel';
+            }
+        }
+
+        function startVoiceDictation(targetId, btnEl) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return showToast('Voice typing works in Chrome / Edge on Android & Tablet.', 'warning');
+            const rec = new SpeechRec();
+            rec.lang = currentLang === 'hi' ? 'hi-IN' : 'en-IN';
+            rec.interimResults = false;
+            btnEl.classList.add('listening');
+            btnEl.innerHTML = '<i class="fas fa-circle"></i> बोलें...';
+            rec.onresult = (e) => {
+                const txt = e.results[0][0].transcript;
+                const f = document.getElementById(targetId);
+                f.value = (f.value ? f.value + ' ' : '') + txt;
+                showToast('Voice dictated!', 'success');
+            };
+            rec.onerror = () => showToast('आवाज़ स्पष्ट नहीं आई, कृपया पुनः बोलें।', 'warning');
+            rec.onend = () => { btnEl.classList.remove('listening'); btnEl.innerHTML = '<i class="fas fa-microphone"></i> Speak'; };
+            rec.start();
+        }
+
+        // ================= MODULE 5: KEYPAD PHONE SMS, CALL SCRIPT & PESHI PARCHA =================
+        function sendWhatsAppReminder(caseNumber, includeFee) {
+            const c = cases.find(x => x.caseNumber === caseNumber);
+            if (!c) return;
+            const phone = (c.mobileNumber || '').replace(/\D/g, '').slice(-10);
+            if (phone.length < 10) return showToast('Valid 10-digit mobile number required', 'warning');
+
+            const bal = Math.max(0, (parseFloat(c.totalFee) || 0) - (parseFloat(c.paidFee) || 0));
+            const feeLine = (includeFee && bal > 0) ? `\n💳 *बकाया फीस (Balance Fee):* ₹${bal.toLocaleString('en-IN')}` : '';
+            const msg = `नमस्ते ${c.clientName} जी,\nचैम्बर ऑफ *${currentUser.name}* की ओर से आपके मुकदमे की सुनवाई की सूचना:\n\n📁 *केस नं.:* ${c.caseNumber} (${c.courtLevel || 'Court'})\n📅 *अगली तारीख:* ${formatDate(c.nextHearing)}\n🏛️ *न्यायालय:* ${c.court || 'Court'}\n📌 *कार्यवाही:* ${c.caseStage || 'Hearing'}${feeLine}\n\nकृपया समय से चैम्बर में संपर्क करें।`;
+            window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function sendKeypadSMS(caseNumber) {
+            const c = cases.find(x => x.caseNumber === caseNumber);
+            if (!c) return;
+            const phone = (c.mobileNumber || '').replace(/\D/g, '').slice(-10);
+            if (phone.length < 10) return showToast('Valid 10-digit mobile number required', 'warning');
+
+            const bal = Math.max(0, (parseFloat(c.totalFee) || 0) - (parseFloat(c.paidFee) || 0));
+            const feeTxt = bal > 0 ? ` बकाया फीस: Rs.${bal}.` : '';
+            const smsBody = `सूचना (${currentUser.name}, Adv): केस ${c.caseNumber} की अगली तारीख ${formatDate(c.nextHearing)} को ${c.court || 'कोर्ट'} में है (${c.caseStage || 'सुनवाई'}).${feeTxt} समय से संपर्क करें।`;
+            const sep = /iPad|iPhone|iPod/.test(navigator.userAgent) ? '&' : '?';
+            window.location.href = `sms:+91${phone}${sep}body=${encodeURIComponent(smsBody)}`;
+            showToast(`Opening SIM SMS for ${c.clientName}`, 'success');
+        }
+
+        function callKeypadClient(caseNumber) {
+            const c = cases.find(x => x.caseNumber === caseNumber);
+            if (!c) return;
+            const phone = (c.mobileNumber || '').replace(/\D/g, '').slice(-10);
+            const bal = Math.max(0, (parseFloat(c.totalFee) || 0) - (parseFloat(c.paidFee) || 0));
+
+            const content = document.getElementById('ai-analysis-content');
+            content.innerHTML = `
+                <div style="background:#eff6ff;border-left:5px solid #2563eb;padding:16px;border-radius:12px;">
+                    <h4 style="color:#1e3a8a;margin-bottom:8px;"><i class="fas fa-phone-volume"></i> मुंशी / वकील कॉल स्क्रिप्ट (Keypad Client)</h4>
+                    <p style="margin-bottom:6px;"><strong>मुवक्किल:</strong> ${encodeHTML(c.clientName)} (${encodeHTML(c.fatherName || '')})</p>
+                    <p style="margin-bottom:6px;"><strong>केस नं.:</strong> ${encodeHTML(c.caseNumber)} | <strong>कोर्ट:</strong> ${encodeHTML(c.court || 'N/A')}</p>
+                    <p style="font-size:1.1rem;color:#dc2626;font-weight:700;margin-bottom:6px;">📅 अगली तारीख: ${formatDate(c.nextHearing)} (${encodeHTML(c.caseStage || 'सुनवाई')})</p>
+                    <p style="margin-bottom:6px;"><strong>क्या काम होना है:</strong> ${encodeHTML(c.courtOrders || 'पैरवी / हाजिरी')}</p>
+                    <p style="color:#b45309;font-weight:700;">💰 बकाया फीस: ₹${bal.toLocaleString('en-IN')}</p>
+                    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+                        <a href="tel:+91${phone}" class="btn btn-success btn-sm"><i class="fas fa-phone"></i> अभी कॉल लगाएं (+91 ${phone})</a>
+                        <button class="btn btn-sms btn-sm" onclick="sendKeypadSMS('${encodeHTML(c.caseNumber)}')"><i class="fas fa-sms"></i> SIM SMS भेजें</button>
+                        <button class="btn btn-gold btn-sm" onclick="printPeshiParchi('${encodeHTML(c.caseNumber)}')"><i class="fas fa-receipt"></i> पेशी पर्ची प्रिंट करें</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('ai-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+        }
+
+        function printPeshiParchi(caseNumber) {
+            const c = cases.find(x => x.caseNumber === caseNumber);
+            if (!c) return;
+            const bal = Math.max(0, (parseFloat(c.totalFee) || 0) - (parseFloat(c.paidFee) || 0));
+            const w = window.open('', '_blank');
+            w.document.write(`<html><head><title>पेशी पर्ची - ${encodeHTML(c.caseNumber)}</title><style>body{font-family:'Noto Sans Devanagari',sans-serif;padding:20px;}.slip{max-width:360px;border:2px dashed #000;padding:16px;margin:0 auto;}h2{text-align:center;margin:0 0 6px;font-size:18px;border-bottom:1px solid #000;padding-bottom:6px;}p{margin:6px 0;font-size:14px;}.date-box{background:#f1f5f9;border:1px solid #000;padding:8px;text-align:center;font-size:16px;font-weight:bold;margin:10px 0;}</style></head><body><div class="slip"><h2>⚖️ अधिवक्ता पेशी पर्ची (तारीख स्लिप)</h2><p style="text-align:center;font-weight:bold;">चैम्बर: ${encodeHTML(currentUser.name)} (एडवोकेट)</p><hr><p><strong>मुवक्किल:</strong> ${encodeHTML(c.clientName)}</p><p><strong>मुकदमा नं.:</strong> ${encodeHTML(c.caseNumber)}</p><p><strong>न्यायालय:</strong> ${encodeHTML(c.court || c.courtLevel)}</p><div class="date-box">अगली तारीख: ${formatDate(c.nextHearing)}</div><p><strong>कार्यवाही:</strong> ${encodeHTML(c.caseStage)} (${encodeHTML(c.courtOrders || 'हाजिरी')})</p>${bal > 0 ? `<p><strong>बकाया फीस:</strong> ₹${bal.toLocaleString('en-IN')}</p>` : ''}<hr><p style="font-size:11px;text-align:center;">नोट: कृपया तारीख पर सुबह 10:00 बजे आवश्यक कागजात के साथ चैम्बर पर मिलें।</p></div></body></html>`);
+            w.document.close();
+            w.print();
+        }
+
+        // ================= MODULE 6: CORE CASE CRUD, SEARCH & CHARTS =================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${encodeHTML(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('login-form').addEventListener('submit', login);
+            document.getElementById('register-form').addEventListener('submit', register);
+            document.getElementById('case-form').addEventListener('submit', saveCase);
+            document.getElementById('reset-form-btn').addEventListener('click', () => document.getElementById('case-form').reset());
+            document.getElementById('edit-case-form').addEventListener('submit', updateCase);
+            document.getElementById('close-edit-panel').addEventListener('click', closePanels);
+            document.getElementById('close-ai-panel').addEventListener('click', closePanels);
+            document.getElementById('overlay').addEventListener('click', closePanels);
+            document.getElementById('logout-button').addEventListener('click', logout);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('extend-session').addEventListener('click', resetSessionTimer);
+
+            ['mousemove', 'keydown', 'touchstart', 'click'].forEach(evt => {
+                document.addEventListener(evt, resetInactivityTimer, { passive: true });
+            });
+
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const t = this.getAttribute('data-tab');
+                    document.querySelectorAll('.auth-tab').forEach(x => x.classList.remove('active'));
+                    document.querySelectorAll('.auth-form').forEach(x => x.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(`${t}-form`).classList.add('active');
+                });
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateToPage(this.getAttribute('data-page'));
+                });
+            });
+
+            document.querySelectorAll('.tab[data-tab]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const id = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(id).classList.add('active');
+                });
+            });
+        }
+
+        function closePanels() {
+            document.getElementById('edit-panel').classList.remove('open');
+            document.getElementById('ai-panel').classList.remove('open');
+            document.getElementById('overlay').classList.remove('open');
+        }
+
+        function navigateToPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${page}-page`).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const activeLink = document.querySelector(`.nav-link[data-page="${page}"]`);
+            if (activeLink) activeLink.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (page === 'dashboard') loadDashboard();
+            else if (page === 'cases') displayCases();
+            else if (page === 'hearings') checkUpcomingHearings();
+        }
+
+        function quickDemoLogin() {
+            document.getElementById('login-email').value = 'demo@example.com';
+            document.getElementById('login-password').value = 'Password123!';
+            document.getElementById('remember-me').checked = true;
+            document.getElementById('login-form').dispatchEvent(new Event('submit'));
+        }
+
+        function checkAuthentication() {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('current_user');
+            if (token && user && localStorage.getItem('remember_me') === 'true') {
+                currentUser = JSON.parse(user);
+                document.getElementById('user-welcome').textContent = currentUser.name;
+                loadUserData();
+                document.getElementById('auth-page').classList.remove('active');
+                document.getElementById('app-container').style.display = 'block';
+                loadDashboard();
+                resetSessionTimer();
+            }
+        }
+
+        function register(e) {
+            e.preventDefault();
+            const name = sanitizeInput(document.getElementById('register-name').value.trim());
+            const email = sanitizeInput(document.getElementById('register-email').value.trim());
+            const pass = document.getElementById('register-password').value;
+            const conf = document.getElementById('register-confirm').value;
+            if (pass !== conf) return showToast('Passwords do not match', 'danger');
+            if (pass.length < 8) return showToast('Password must be at least 8 characters', 'warning');
+            if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) return showToast('Email already exists', 'danger');
+
+            users.push({ id: Date.now().toString(36), name, email, password: hashPassword(pass) });
+            localStorage.setItem('secure_users', JSON.stringify(users));
+            showToast('Account registered! Please login.', 'success');
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+        }
+
+        function login(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value;
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            if (!user || user.password !== hashPassword(pass)) return showToast('Invalid credentials', 'danger');
+
+            currentUser = { id: user.id, name: user.name, email: user.email };
+            localStorage.setItem('current_user', JSON.stringify(currentUser));
+            localStorage.setItem('auth_token', 'tok_' + Date.now());
+            if (document.getElementById('remember-me').checked) localStorage.setItem('remember_me', 'true');
+
+            document.getElementById('user-welcome').textContent = currentUser.name;
+            loadUserData();
+            document.getElementById('auth-page').classList.remove('active');
+            document.getElementById('app-container').style.display = 'block';
+            navigateToPage('dashboard');
+            resetSessionTimer();
+            showToast(`Welcome to Chamber, ${currentUser.name}!`, 'success');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('current_user');
+            clearTimeout(sessionTimeout); clearTimeout(inactivityTimer); clearInterval(countdownInterval);
+            document.getElementById('session-timeout').classList.remove('active');
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('auth-page').classList.add('active');
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem(`cases_${currentUser.id}`);
+            cases = saved ? JSON.parse(saved) : [];
+        }
+
+        function loadSampleCases() {
+            const today = new Date();
+            const d2 = new Date(today); d2.setDate(today.getDate() + 2);
+            const d5 = new Date(today); d5.setDate(today.getDate() + 5);
+            const d15 = new Date(today); d15.setDate(today.getDate() + 15);
+            const fmt = d => d.toISOString().split('T')[0];
+
+            const samples = [
+                {
+                    courtLevel: 'District Court', caseNumber: 'BA/412/2026', clientName: 'रामसजीवन यादव (Grameen Client)',
+                    fatherName: 'S/o स्व. बुधई यादव', mobileNumber: '9876543210', caseType: 'Criminal',
+                    court: 'Sessions Judge, Siddharthnagar', policeStation: 'PS Naugarh', firNumber: 'Crime No. 88/2026',
+                    oppositeCounsel: 'DGC (Criminal)', nextHearing: fmt(d2), caseStage: 'Hearing', status: 'In Progress',
+                    totalFee: 15000, paidFee: 5000, clientAddress: 'ग्राम पकड़ी, सिद्धार्थनगर, उ.प्र.',
+                    courtOrders: 'केस डायरी तलब; जमानत पर सुनवाई नियत।',
+                    description: 'Regular Bail u/s 483 BNSS (439 CrPC) / Sec 109 BNS.', createdAt: new Date().toISOString()
+                },
+                {
+                    courtLevel: 'High Court', caseNumber: 'CRLP/11204/2026', clientName: 'Smt. Kavita Mishra & Ors.',
+                    fatherName: 'W/o Manoj Mishra', mobileNumber: '9123456780', caseType: 'Criminal',
+                    court: 'Allahabad High Court - Court No. 42', policeStation: 'Diary No. 9921/2026 (Dist. Siddharthnagar)',
+                    firNumber: 'Division Bench - Item No. 18', oppositeCounsel: 'G.A. State of UP', nextHearing: fmt(d5),
+                    caseStage: 'Notice', status: 'Pending', totalFee: 45000, paidFee: 30000,
+                    clientAddress: 'Bansi, Siddharthnagar, UP', courtOrders: 'Interim stay on arrest till next listing.',
+                    description: 'Writ Petition under Art. 226 for FIR Quashing u/s 85 BNS (498A IPC).', createdAt: new Date().toISOString()
+                },
+                {
+                    courtLevel: 'Supreme Court', caseNumber: 'SLP(Crl)/3409/2026', clientName: 'Vikramaditya Singh',
+                    fatherName: 'S/o Harishankar Singh', mobileNumber: '9988776655', caseType: 'Corporate',
+                    court: 'Supreme Court - Court No. 6', policeStation: 'Diary No. 18450/2026',
+                    firNumber: 'Item No. 32 (Admission)', oppositeCounsel: 'AOR Respondent', nextHearing: fmt(d15),
+                    caseStage: 'Argument', status: 'In Progress', totalFee: 120000, paidFee: 80000,
+                    clientAddress: 'Gomti Nagar, Lucknow', courtOrders: 'Counter affidavit filed; listed for final disposal.',
+                    description: 'Special Leave Petition arising out of Sec 138 NI Act commercial dispute.', createdAt: new Date().toISOString()
+                }
+            ];
+
+            let added = 0;
+            samples.forEach(s => { if (!cases.some(c => c.caseNumber === s.caseNumber)) { cases.push(s); added++; } });
+            localStorage.setItem(`cases_${currentUser.id}`, JSON.stringify(cases));
+            loadDashboard();
+            showToast(added ? `${added} Sample Cases loaded!` : 'Demo cases already loaded.', 'success');
+        }
+
+        function saveCase(e) {
+            e.preventDefault();
+            const caseData = {
+                courtLevel: document.getElementById('court-level').value,
+                caseNumber: sanitizeInput(document.getElementById('case-number').value.trim()),
+                clientName: sanitizeInput(document.getElementById('client-name').value.trim()),
+                fatherName: sanitizeInput(document.getElementById('father-name').value.trim()),
+                mobileNumber: sanitizeInput(document.getElementById('mobile-number').value.trim()),
+                caseType: document.getElementById('case-type').value,
+                court: sanitizeInput(document.getElementById('court').value.trim()),
+                policeStation: sanitizeInput(document.getElementById('police-station').value.trim()),
+                firNumber: sanitizeInput(document.getElementById('fir-number').value.trim()),
+                oppositeCounsel: sanitizeInput(document.getElementById('opposite-counsel').value.trim()),
+                nextHearing: document.getElementById('next-hearing').value,
+                caseStage: document.getElementById('case-stage').value,
+                status: document.getElementById('status').value,
+                totalFee: parseFloat(document.getElementById('total-fee').value) || 0,
+                paidFee: parseFloat(document.getElementById('paid-fee').value) || 0,
+                clientAddress: sanitizeInput(document.getElementById('client-address').value.trim()),
+                courtOrders: sanitizeInput(document.getElementById('court-orders').value.trim()),
+                description: sanitizeInput(document.getElementById('description').value.trim()),
+                createdAt: new Date().toISOString()
+            };
+
+            if (cases.some(c => c.caseNumber.toLowerCase() === caseData.caseNumber.toLowerCase())) {
+                return showToast('Case Number already exists!', 'danger');
+            }
+            cases.push(caseData);
+            localStorage.setItem(`cases_${currentUser.id}`, JSON.stringify(cases));
+            document.getElementById('case-form').reset();
+            displayCases();
+            updateStats();
+            showToast(`Case ${caseData.caseNumber} saved!`, 'success');
+        }
+
+        function createCaseCard(c) {
+            const div = document.createElement('div');
+            div.className = 'case-card';
+            const statusClass = c.status === 'Pending' ? 'status-pending' : c.status === 'In Progress' ? 'status-progress' : 'status-closed';
+            const totalFee = parseFloat(c.totalFee) || 0;
+            const paidFee = parseFloat(c.paidFee) || 0;
+            const balanceFee = Math.max(0, totalFee - paidFee);
+            const safeNo = encodeHTML(c.caseNumber);
+
+            div.innerHTML = `
+                <div class="case-header">
+                    <h3 class="case-title"><i class="fas fa-folder" style="color:var(--accent);margin-right:6px;"></i>${safeNo} — ${encodeHTML(c.clientName)}</h3>
+                    <div class="badge-group">
+                        <span class="court-badge"><i class="fas fa-landmark"></i> ${encodeHTML(c.courtLevel || 'District Court')}</span>
+                        <span class="case-status ${statusClass}">${encodeHTML(c.status)}</span>
+                    </div>
+                </div>
+                <div class="case-details">
+                    <div><strong>Category:</strong> ${encodeHTML(c.caseType)}</div>
+                    <div><strong>Court/Bench:</strong> ${encodeHTML(c.court || 'N/A')}</div>
+                    <div><strong>Thana/Diary:</strong> ${encodeHTML(c.policeStation || 'N/A')}</div>
+                    <div><strong>FIR/Item No:</strong> ${encodeHTML(c.firNumber || 'N/A')}</div>
+                    <div><strong>Mobile:</strong> ${encodeHTML(c.mobileNumber)}</div>
+                    <div><strong>Next Date:</strong> <span style="color:var(--danger);font-weight:700;">${formatDate(c.nextHearing)}</span> (${encodeHTML(c.caseStage || 'Hearing')})</div>
+                </div>
+                <div class="fee-strip">
+                    <span><i class="fas fa-rupee-sign"></i> Total: ₹${totalFee.toLocaleString('en-IN')}</span>
+                    <span style="color:var(--success);">Paid: ₹${paidFee.toLocaleString('en-IN')}</span>
+                    <span style="color:${balanceFee > 0 ? 'var(--danger)' : 'var(--success)'};">Balance Due: ₹${balanceFee.toLocaleString('en-IN')}</span>
+                </div>
+                <p style="font-size:0.88rem;"><strong>Order / Next Step:</strong> ${encodeHTML(c.courtOrders || 'N/A')}</p>
+                <p style="font-size:0.88rem;"><strong>Sections & Facts:</strong> ${encodeHTML(c.description || 'N/A')}</p>
+                <div class="case-actions">
+                    <button class="btn btn-sm" onclick="editCaseByNo('${safeNo}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-whatsapp btn-sm" onclick="sendWhatsAppReminder('${safeNo}', true)"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button class="btn btn-sms btn-sm" onclick="sendKeypadSMS('${safeNo}')"><i class="fas fa-sms"></i> Keypad SMS</button>
+                    <button class="btn btn-call btn-sm" onclick="callKeypadClient('${safeNo}')"><i class="fas fa-phone-alt"></i> Call / पर्ची</button>
+                    <button class="btn btn-purple btn-sm" onclick="performAIAnalysisByNo('${safeNo}')"><i class="fas fa-robot"></i> AI Audit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCaseByNo('${safeNo}')"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            return div;
+        }
+
+        function displayCases() {
+            const lists = {
+                all: document.getElementById('all-cases-list'),
+                pending: document.getElementById('pending-cases-list'),
+                progress: document.getElementById('progress-cases-list'),
+                closed: document.getElementById('closed-cases-list')
+            };
+            Object.values(lists).forEach(l => { if (l) l.innerHTML = ''; });
+            if (cases.length === 0) {
+                lists.all.innerHTML = '<p style="color:var(--gray);">No cases registered yet.</p>';
+                return;
+            }
+            cases.forEach(c => {
+                lists.all.appendChild(createCaseCard(c));
+                if (c.status === 'Pending') lists.pending.appendChild(createCaseCard(c));
+                else if (c.status === 'In Progress') lists.progress.appendChild(createCaseCard(c));
+                else if (c.status === 'Closed') lists.closed.appendChild(createCaseCard(c));
+            });
+        }
+
+        function loadDashboard() {
+            updateStats();
+            const recent = document.getElementById('recent-cases-list');
+            recent.innerHTML = '';
+            if (cases.length === 0) {
+                recent.innerHTML = '<p style="color:var(--gray);">No cases yet. Tap <strong>"Load Demo Cases"</strong> above to test on your tablet!</p>';
+            } else {
+                cases.slice(-4).reverse().forEach(c => recent.appendChild(createCaseCard(c)));
+            }
+            checkUpcomingHearings();
+            createCharts();
+        }
+
+        function updateStats() {
+            document.getElementById('total-cases').textContent = cases.length;
+            document.getElementById('pending-cases').textContent = cases.filter(c => c.status !== 'Closed').length;
+            const totalBalance = cases.reduce((sum, c) => sum + Math.max(0, (parseFloat(c.totalFee) || 0) - (parseFloat(c.paidFee) || 0)), 0);
+            document.getElementById('pending-fees-stat').textContent = '₹' + totalBalance.toLocaleString('en-IN');
+
+            const today = new Date(); today.setHours(0,0,0,0);
+            const next7 = new Date(today); next7.setDate(today.getDate() + 7);
+            const upCount = cases.filter(c => {
+                if (!c.nextHearing || c.status === 'Closed') return false;
+                const d = new Date(c.nextHearing);
+                return d >= today && d <= next7;
+            }).length;
+            document.getElementById('upcoming-hearings').textContent = upCount;
+        }
+
+        function checkUpcomingHearings() {
+            const list = document.getElementById('hearing-list');
+            if (!list) return;
+            list.innerHTML = '';
+            const today = new Date(); today.setHours(0,0,0,0);
+            const next7 = new Date(today); next7.setDate(today.getDate() + 7);
+
+            const upcoming = cases.filter(c => {
+                if (!c.nextHearing || c.status === 'Closed') return false;
+                const d = new Date(c.nextHearing);
+                return d >= today && d <= next7;
+            }).sort((a,b) => new Date(a.nextHearing) - new Date(b.nextHearing));
+
+            if (upcoming.length === 0) {
+                list.innerHTML = '<p style="color:var(--gray);">No hearings scheduled in the next 7 days.</p>';
+                return;
+            }
+            upcoming.forEach(c => {
+                const days = Math.ceil((new Date(c.nextHearing) - today) / 86400000);
+                const safeNo = encodeHTML(c.caseNumber);
+                const item = document.createElement('div');
+                item.className = `hearing-item ${days <= 2 ? 'hearing-alert' : ''}`;
+                item.innerHTML = `
+                    <div>
+                        <h4 style="color:var(--primary);">[${encodeHTML(c.courtLevel || 'Court')}] ${safeNo} — ${encodeHTML(c.clientName)}</h4>
+                        <p style="font-size:0.88rem;"><strong>Date:</strong> ${formatDate(c.nextHearing)} (${days === 0 ? 'TODAY' : `In ${days} days`}) | <strong>Court:</strong> ${encodeHTML(c.court || 'N/A')}</p>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <button class="btn btn-whatsapp btn-sm" onclick="sendWhatsAppReminder('${safeNo}', true)"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="btn btn-sms btn-sm" onclick="sendKeypadSMS('${safeNo}')"><i class="fas fa-sms"></i> Keypad SMS</button>
+                        <button class="btn btn-call btn-sm" onclick="callKeypadClient('${safeNo}')"><i class="fas fa-phone-alt"></i> Call / पर्ची</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function editCaseByNo(caseNumber) {
+            const c = cases.find(x => x.caseNumber === caseNumber);
+            if (!c) return;
+            editingCaseNumber = c.caseNumber;
+            document.getElementById('edit-court-level').value = c.courtLevel || 'District Court';
+            document.getElementById('edit-case-number').value = c.caseNumber;
+            document.getElementById('edit-client-name').value = c.clientName;
+            document.getElementById('edit-father-name').value = c.fatherName || '';
+            document.getElementById('edit-mobile-number').value = c.mobileNumber || '';
+            document.getElementById('edit-case-type').value = c.caseType;
+            document.getElementById('edit-court').value = c.court || '';
+            document.getElementById('edit-police-station').value = c.policeStation || '';
+            document.getElementById('edit-fir-number').value = c.firNumber || '';
+            document.getElementById('edit-total-fee').value = c.totalFee || 0;
+            document.getElementById('edit-paid-fee').value = c.paidFee || 0;
+            document.getElementById('edit-next-hearing').value = c.nextHearing || '';
+            document.getElementById('edit-status').value = c.status;
+            document.getElementById('edit-case-stage').value = c.caseStage || 'Hearing';
+            document.getElementById('edit-client-address').value = c.clientAddress || '';
+            document.getElementById('edit-court-orders').value = c.courtOrders || '';
+            document.getElementById('edit-description').value = c.description || '';
+
+            document.getElementById('edit-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+        }
+
+        function updateCase(e) {
+            e.preventDefault();
+            const idx = cases.findIndex(x => x.caseNumber === editingCaseNumber);
+            if (idx === -1) return;
+            cases[idx] = {
+                ...cases[idx],
+                courtLevel: document.getElementById('edit-court-level').value,
+                caseNumber: sanitizeInput(document.getElementById('edit-case-number').value.trim()),
+                clientName: sanitizeInput(document.getElementById('edit-client-name').value.trim()),
+                fatherName: sanitizeInput(document.getElementById('edit-father-name').value.trim()),
+                mobileNumber: sanitizeInput(document.getElementById('edit-mobile-number').value.trim()),
+                caseType: document.getElementById('edit-case-type').value,
+                court: sanitizeInput(document.getElementById('edit-court').value.trim()),
+                policeStation: sanitizeInput(document.getElementById('edit-police-station').value.trim()),
+                firNumber: sanitizeInput(document.getElementById('edit-fir-number').value.trim()),
+                totalFee: parseFloat(document.getElementById('edit-total-fee').value) || 0,
+                paidFee: parseFloat(document.getElementById('edit-paid-fee').value) || 0,
+                nextHearing: document.getElementById('edit-next-hearing').value,
+                status: document.getElementById('edit-status').value,
+                caseStage: document.getElementById('edit-case-stage').value,
+                clientAddress: sanitizeInput(document.getElementById('edit-client-address').value.trim()),
+                courtOrders: sanitizeInput(document.getElementById('edit-court-orders').value.trim()),
+                description: sanitizeInput(document.getElementById('edit-description').value.trim())
+            };
+            localStorage.setItem(`cases_${currentUser.id}`, JSON.stringify(cases));
+            closePanels();
+            loadDashboard();
+            displayCases();
+            showToast('Case updated successfully!', 'success');
+        }
+
+        function deleteCaseByNo(caseNumber) {
+            if (!confirm(`Delete case ${caseNumber}?`)) return;
+            cases = cases.filter(c => c.caseNumber !== caseNumber);
+            localStorage.setItem(`cases_${currentUser.id}`, JSON.stringify(cases));
+            loadDashboard();
+            displayCases();
+            showToast('Case deleted.', 'warning');
+        }
+
+        function searchCases() {
+            const q = document.getElementById('search-input').value.trim().toLowerCase();
+            const levelFilter = document.getElementById('search-field').value;
+            const box = document.getElementById('search-results');
+            box.innerHTML = '';
+
+            const res = cases.filter(c => {
+                const levelMatch = levelFilter === 'all' || (c.courtLevel || 'District Court') === levelFilter;
+                const textMatch = !q || Object.values(c).some(v => v && v.toString().toLowerCase().includes(q));
+                return levelMatch && textMatch;
+            });
+
+            if (res.length === 0) {
+                box.innerHTML = '<p style="color:var(--gray);">No matching cases found.</p>';
+                return;
+            }
+            res.forEach(c => box.appendChild(createCaseCard(c)));
+        }
+
+        // ================= MODULE 7: BILINGUAL AI DRAFTER & PROCEDURAL CHECKLIST =================
+        function filterBNSConverter() {
+            const q = (document.getElementById('bns-search-input')?.value || '').trim().toLowerCase();
+            const tbody = document.getElementById('bns-converter-body');
+            if (!tbody) return;
+            const rows = bnsDatabase.filter(r => !q || r.old.toLowerCase().includes(q) || r.newSec.toLowerCase().includes(q) || r.title.toLowerCase().includes(q));
+            tbody.innerHTML = rows.map(r => `
+                <tr>
+                    <td><strong>${encodeHTML(r.old)}</strong></td>
+                    <td><span class="bns-badge">${encodeHTML(r.newSec)}</span></td>
+                    <td>${encodeHTML(r.title)}</td>
+                    <td>${encodeHTML(r.note)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function openAIAnalysis(type) {
+            const content = document.getElementById('ai-analysis-content');
+            const opts = cases.map(c => `<option value="${encodeHTML(c.caseNumber)}">${encodeHTML(c.caseNumber)} - ${encodeHTML(c.clientName)}</option>`).join('');
+
+            if (type === 'document-generation') {
+                content.innerHTML = `
+                    <h4 style="color:var(--primary);margin-bottom:10px;">Bilingual Smart Legal Drafter</h4>
+                    <div class="form-group">
+                        <label>Select Case</label>
+                        <select id="ai-doc-case" class="form-control">${opts}</select>
+                    </div>
+                    <div class="form-group">
+                        <label>Draft Language (भाषा चुनें)</label>
+                        <select id="ai-doc-lang" class="form-control">
+                            <option value="hi" ${currentLang === 'hi' ? 'selected' : ''}>हिंदी (Shuddh Legal Hindi - District/HC)</option>
+                            <option value="en" ${currentLang === 'en' ? 'selected' : ''}>English (Standard Court Format)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Document Format</label>
+                        <select id="ai-doc-type" class="form-control">
+                            <option value="notice">Legal Demand Notice (विधिक नोटिस)</option>
+                            <option value="affidavit">Affidavit (शपथ-पत्र)</option>
+                            <option value="bail">Bail Application (जमानत प्रार्थना-पत्र u/s 480/483 BNSS)</option>
+                            <option value="adjournment">Exemption / Adjournment (हाजिरी माफी / स्थगन अर्जी)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-gold" onclick="generateBilingualDraft()"><i class="fas fa-magic"></i> Generate Printable Draft</button>
+                    <div id="ai-draft-output"></div>
+                `;
+            } else if (type === 'case-analysis') {
+                content.innerHTML = `
+                    <h4 style="color:var(--primary);margin-bottom:10px;">Procedural Strategy & Checklist</h4>
+                    <div class="form-group">
+                        <label>Select Case</label>
+                        <select id="ai-check-case" class="form-control">${opts}</select>
+                    </div>
+                    <button class="btn btn-gold" onclick="performAIAnalysisByNo(document.getElementById('ai-check-case').value)">Run Procedural Audit</button>
+                `;
+            } else {
+                content.innerHTML = `
+                    <h4 style="color:var(--primary);margin-bottom:10px;">Precedent & Case Law Finder</h4>
+                    <div class="form-group">
+                        <label>Topic / Section</label>
+                        <input type="text" id="ai-res-q" class="form-control" placeholder="e.g. Arnesh Kumar 41A CrPC, Section 138 NI Act">
+                    </div>
+                    <button class="btn btn-gold" onclick="window.open('https://indiankanoon.org/search/?formInput='+encodeURIComponent(document.getElementById('ai-res-q').value), '_blank')">Search on Indian Kanoon</button>
+                `;
+            }
+            document.getElementById('ai-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+        }
+
+        function generateBilingualDraft() {
+            const no = document.getElementById('ai-doc-case').value;
+            const lang = document.getElementById('ai-doc-lang').value;
+            const type = document.getElementById('ai-doc-type').value;
+            const c = cases.find(x => x.caseNumber === no);
+            if (!c) return showToast('Please add/select a case first', 'warning');
+
+            const dt = formatDate(new Date().toISOString());
+            let draft = '';
+
+            if (lang === 'hi') {
+                if (type === 'notice') {
+                    draft = `पंजीकृत ए.डी. / विधिक नोटिस (LEGAL NOTICE)\nदिनांक: ${dt}\n\nप्रेषक:\nचैम्बर ऑफ ${currentUser.name} (एडवोकेट)\n${c.court || 'व्यवहार न्यायालय, सिद्धार्थनगर (उ.प्र.)'}\n\nनिर्देशानुसार मुवक्किल:\n${c.clientName}, पुत्र/पत्नी ${c.fatherName || '____'}\nनिवासी: ${c.clientAddress || 'सिद्धार्थनगर'}\n\nविषय: वाद संख्या ${c.caseNumber} (${c.description || 'विधिक कार्यवाही'}) के संबंध में विधिक नोटिस।\n\nमहोदय,\nमेरे उपरोक्त मुवक्किल के निर्देशानुसार आपको निम्नलिखित विधिक नोटिस प्रेषित है:\n1. यह कि प्रकरण "${c.description || 'विवादित विषय'}" के संबंध में माननीय न्यायालय (${c.court || 'सक्षम न्यायालय'}) में अगली सुनवाई दिनांक ${formatDate(c.nextHearing)} नियत है।\n2. अतः इस नोटिस प्राप्ति के 15 दिवस के भीतर मेरे मुवक्किल की न्यायसंगत मांग का निस्तारण करें, अन्यथा आपके विरुद्ध सक्षम न्यायालय में अग्रिम कार्यवाही की जाएगी जिसका समस्त हर्जा-खर्चा आपका होगा।\n\nभवदीय,\n(${currentUser.name})\nएडवोकेट`;
+                } else if (type === 'affidavit') {
+                    draft = `समक्ष न्यायालय: ${c.court || 'माननीय न्यायालय, सिद्धार्थनगर'}\nवाद संख्या: ${c.caseNumber}\n${c.clientName} बनाम ${c.oppositeCounsel || 'उ.प्र. सरकार / विपक्षी'}\n\nशपथ-पत्र (AFFIDAVIT)\nमैं, ${c.clientName}, पुत्र/पत्नी ${c.fatherName || '____'}, निवासी ${c.clientAddress || '____'}, सशपथ बयान करता/करती हूँ कि:\n1. यह कि मैं उपरोक्त वाद में पैरोकार/वादी/अभियुक्त हूँ तथा मुकदमे के तथ्यों से भली-भांति परिचित हूँ।\n2. यह कि संलग्न प्रार्थना-पत्र मेरे निर्देशानुसार मेरे अधिवक्ता द्वारा तैयार किया गया है जो पूर्णतः सत्य है।\n\nहस्ताक्षर शपथकर्ता\nसत्यापन: आज दिनांक ${dt} को सत्यापित किया गया।`;
+                } else if (type === 'bail') {
+                    draft = `समक्ष न्यायालय: ${c.court || 'माननीय सत्र/मुख्य न्यायिक मजिस्ट्रेट, सिद्धार्थनगर'}\nजमानत प्रार्थना-पत्र अंतर्गत धारा 480 / 483 BNSS (437/439 CrPC)\nवाद / अपराध संख्या: ${c.firNumber || c.caseNumber} | थाना: ${c.policeStation || '____'}\n\n${c.clientName} (पुत्र ${c.fatherName || '____'}) ... प्रार्थी / अभियुक्त\nबनाम\nउत्तर प्रदेश राज्य ... विपक्षी\nधाराएं: ${c.description || 'BNS / IPC'}\n\nमाननीय महोदय,\nप्रार्थी की ओर से सविनय निवेदन है:\n1. यह कि प्रार्थी निर्दोष है और उसे प्रस्तुत प्रकरण में रंजिशन झूठा फंसाया गया है।\n2. यह कि FIR में कोई स्वतंत्र साक्षी नहीं है तथा प्रार्थी का कोई पूर्व आपराधिक इतिहास नहीं है।\n3. यह कि प्रार्थी जमानतदार प्रस्तुत करने व न्यायालय की शर्तों का पालन करने को तैयार है।\n\nप्रार्थना:\nअतः माननीय न्यायालय से प्रार्थना है कि प्रार्थी ${c.clientName} को जमानत पर रिहा करने की कृपा करें।\n\nदिनांक: ${dt}\nद्वारा अधिवक्ता: (${currentUser.name})`;
+                } else {
+                    draft = `समक्ष न्यायालय: ${c.court || 'माननीय न्यायालय'}\nवाद संख्या: ${c.caseNumber} | दिनांक: ${dt}\n\nहाजिरी माफी / स्थगन प्रार्थना-पत्र\nसविनय निवेदन है कि आज उपरोक्त वाद सुनवाई हेतु नियत है। प्रार्थी ${c.clientName} आवश्यक कारणवश/अस्वस्थ होने के कारण आज न्यायालय के समक्ष उपस्थित होने में असमर्थ है।\nअतः आज की तिथि के लिए प्रार्थी की व्यक्तिगत उपस्थिति माफ करते हुए अगली तिथि नियत करने की कृपा करें।\n\nद्वारा अधिवक्ता: (${currentUser.name})`;
+                }
+            } else {
+                draft = `BEFORE THE HON'BLE ${(c.court || c.courtLevel || 'COURT').toUpperCase()}\nCase No.: ${c.caseNumber} (${c.courtLevel})\n${c.policeStation ? `Police Station / Diary: ${c.policeStation} | FIR/Item: ${c.firNumber || 'N/A'}\n` : ''}\nIN THE MATTER OF:\n${c.clientName} ... Petitioner / Applicant\nVERSUS\n${c.oppositeCounsel || 'State / Respondent'} ... Respondent\n\nDRAFT: ${type.toUpperCase()}\n1. That the present ${c.caseType} matter is listed on ${formatDate(c.nextHearing)} for ${c.caseStage}.\n2. Brief Facts & Sections: ${c.description || 'As per record'}.\n3. Last Order Compliance: ${c.courtOrders || 'Duly complied with'}.\n\nPRAYER:\nIt is most respectfully prayed that this Hon'ble Court may graciously pass appropriate orders in the interest of justice.\n\nDate: ${dt}\nCounsel for Applicant: (${currentUser.name})`;
+            }
+
+            document.getElementById('ai-draft-output').innerHTML = `
+                <div class="legal-draft-box" id="printable-draft">${encodeHTML(draft)}</div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-success btn-sm" onclick="printLegalDraft()"><i class="fas fa-print"></i> Print / Save PDF</button>
+                    <button class="btn btn-purple btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('printable-draft').innerText);showToast('Copied!','success')"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+            `;
+        }
+
+        function printLegalDraft() {
+            const text = document.getElementById('printable-draft').innerText;
+            const w = window.open('', '_blank');
+            w.document.write(`<html><head><title>Legal Draft</title><style>body{font-family:'Noto Sans Devanagari',Georgia,serif;padding:40px;line-height:1.8;white-space:pre-wrap;font-size:13.5pt;}</style></head><body>${encodeHTML(text)}</body></html>`);
+            w.document.close();
+            w.print();
+        }
+
+        function performAIAnalysisByNo(caseNumber) {
+            const c = cases.find(x => x.caseNumber === caseNumber);
+            if (!c) return;
+            const checklist = [];
+            if (c.courtLevel === 'District Court' && c.caseType === 'Criminal') {
+                checklist.push('Verify FIR delay, GD entry & compliance of Section 35 BNSS (41A CrPC).');
+                checklist.push('Check Case Diary (CD), injury report & witness statements u/s 180 BNSS (161 CrPC).');
+                checklist.push('Ensure certified copy of rejection order / remand sheet is on file.');
+            } else if (c.courtLevel === 'High Court' || c.courtLevel === 'Supreme Court') {
+                checklist.push('Verify Synopsis, List of Dates & Events (LODE), and Impugned Order certified copy.');
+                checklist.push('Check affidavit verification, Vakalatnama welfare stamp & notice service report.');
+                checklist.push('Prepare compilation of landmark SC judgments with highlighted paragraphs.');
+            } else {
+                checklist.push('Check pecuniary & territorial jurisdiction and Court Fee sufficiency.');
+                checklist.push('Verify limitation period from date of cause of action.');
+                checklist.push('Ensure original documents & Section 63 BSA (65B IEA) certificate for digital evidence are filed.');
+            }
+
+            const content = document.getElementById('ai-analysis-content');
+            content.innerHTML = `
+                <div style="background:#f8fafc;padding:16px;border-radius:12px;border-left:5px solid var(--accent);">
+                    <h4 style="color:var(--primary);">${encodeHTML(c.caseNumber)} — ${encodeHTML(c.clientName)}</h4>
+                    <p style="font-size:0.86rem;color:var(--gray);margin-bottom:10px;">${encodeHTML(c.courtLevel)} | Stage: ${encodeHTML(c.caseStage)} | Next Date: ${formatDate(c.nextHearing)}</p>
+                    <strong><i class="fas fa-tasks" style="color:var(--accent);"></i> Mandatory Procedural Checklist:</strong>
+                    <ul style="padding-left:18px;margin:10px 0;font-size:0.9rem;">
+                        ${checklist.map(item => `<li style="margin-bottom:6px;">${encodeHTML(item)}</li>`).join('')}
+                    </ul>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+                        <button class="btn btn-gold btn-sm" onclick="openAIAnalysis('document-generation')"><i class="fas fa-file-signature"></i> Draft Document</button>
+                        <button class="btn btn-call btn-sm" onclick="printPeshiParchi('${encodeHTML(c.caseNumber)}')"><i class="fas fa-receipt"></i> Print Peshi Parcha</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('ai-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+        }
+
+        function createCharts() {
+            const types = ['Criminal', 'Civil', 'Family', 'Property', 'Corporate', 'Labor', 'Other'];
+            const counts = types.map(t => cases.filter(c => c.caseType === t).length);
+            if (distChart) distChart.destroy();
+            distChart = new Chart(document.getElementById('case-distribution-chart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: types,
+                    datasets: [{ data: counts.some(x => x > 0) ? counts : [1,1,1,0,0,0,0], backgroundColor: ['#4f46e5','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#64748b'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const levels = ['District Court', 'High Court', 'Supreme Court', 'Tribunal'];
+            const levelCounts = levels.map(l => cases.filter(c => (c.courtLevel || 'District Court') === l).length);
+            if (courtChart) courtChart.destroy();
+            courtChart = new Chart(document.getElementById('monthly-activity-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['District Court', 'High Court', 'Supreme Court', 'Tribunal'],
+                    datasets: [{ label: 'Active Matters', data: levelCounts, backgroundColor: ['#4f46e5', '#7c3aed', '#f59e0b', '#10b981'], borderRadius: 8 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+
+        function calculateLegalInterest() {
+            const p = parseFloat(document.getElementById('calc-principal').value) || 0;
+            const r = parseFloat(document.getElementById('calc-rate').value) || 0;
+            const m = parseFloat(document.getElementById('calc-months').value) || 0;
+            const interest = (p * r * (m / 12)) / 100;
+            document.getElementById('interest-calc-result').innerHTML = `
+                <div style="background:#eef2ff;padding:14px;border-radius:10px;border-left:4px solid var(--accent);">
+                    <strong>Interest:</strong> ₹${interest.toLocaleString('en-IN', {maximumFractionDigits:2})} |
+                    <strong style="color:var(--primary);">Total Claim: ₹${(p + interest).toLocaleString('en-IN', {maximumFractionDigits:2})}</strong>
+                </div>
+            `;
+        }
+
+        function exportBackupData() {
+            const blob = new Blob([JSON.stringify({ cases, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `AdvocatePro_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('Backup downloaded!', 'success');
+        }
+
+        function importBackupData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (Array.isArray(data.cases)) {
+                        cases = data.cases;
+                        localStorage.setItem(`cases_${currentUser.id}`, JSON.stringify(cases));
+                        loadDashboard();
+                        showToast(`Restored ${cases.length} cases!`, 'success');
+                    }
+                } catch { showToast('Invalid backup file', 'danger'); }
+            };
+            reader.readAsText(file);
+        }
+
+        function sanitizeInput(str) { return typeof str === 'string' ? str.replace(/[<>{}\[\]]/g, '') : str; }
+        function encodeHTML(str) {
+            if (typeof str !== 'string') return str || '';
+            return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+        }
+        function hashPassword(p) {
+            let h = 0;
+            for (let i = 0; i < p.length; i++) { h = ((h << 5) - h) + p.charCodeAt(i); h |= 0; }
+            return h.toString();
+        }
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            const dt = new Date(d);
+            return isNaN(dt) ? d : dt.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function resetSessionTimer() {
+            clearTimeout(sessionTimeout); clearTimeout(inactivityTimer); clearInterval(countdownInterval);
+            document.getElementById('session-timeout').classList.remove('active');
+            sessionTimeout = setTimeout(logout, 15 * 60 * 1000);
+            inactivityTimer = setTimeout(() => {
+                document.getElementById('session-timeout').classList.add('active');
+                let rem = 120;
+                countdownInterval = setInterval(() => {
+                    const m = Math.floor(rem / 60), s = rem % 60;
+                    document.getElementById('timeout-countdown').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+                    if (rem-- <= 0) logout();
+                }, 1000);
+            }, 13 * 60 * 1000);
+        }
+        function resetInactivityTimer() {
+            if (currentUser && !document.getElementById('session-timeout').classList.contains('active')) resetSessionTimer();
+        }
+    </script>
+</body>
+</html>
